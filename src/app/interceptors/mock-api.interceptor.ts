@@ -68,6 +68,25 @@ export const mockApiInterceptor: HttpInterceptorFn = (
     return of(new HttpResponse({ status: 201, body: created })).pipe(delay(delayMs));
   }
 
+  // PUT /api/transactions/:id
+  if (url.startsWith('/api/transactions/') && method === 'PUT') {
+    const id = url.split('/').pop() || '';
+    const payload = req.body as Omit<Transaction, 'id' | 'createdAt'>;
+    const updated = stub.handleUpdateTransaction(id, payload);
+
+    if (!updated) {
+      const notFound = new HttpErrorResponse({
+        status: 404,
+        statusText: 'Not Found',
+        url,
+        error: { error: 'Not Found', message: 'Transação não encontrada', statusCode: 404 }
+      });
+      return throwError(() => notFound).pipe(delay(delayMs));
+    }
+
+    return of(new HttpResponse({ status: 200, body: updated })).pipe(delay(delayMs));
+  }
+
   // 4. DELETE /api/transactions/:id
   if (url.startsWith('/api/transactions/') && method === 'DELETE') {
     const id = url.split('/').pop() || '';

@@ -1,21 +1,23 @@
-<button type="button" class="primary-action-btn" (click)="open()">
-  <span class="plus-icon">+</span>
-  <span>Nova Transação</span>
-</button>
+@if (showButton()) {
+  <button type="button" class="primary-action-btn" (click)="open()">
+    <span class="plus-icon">+</span>
+    <span>Nova Transação</span>
+  </button>
+}
 
 @if (isOpen()) {
   <div class="modal-backdrop" (click)="close()">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-title-group">
-          <span class="modal-icon">➕</span>
-          <h2 class="modal-title">Cadastrar Transação</h2>
+          <span class="modal-icon">{{ editing() ? '✏️' : '➕' }}</span>
+          <h2 class="modal-title">{{ editing() ? 'Editar Transação' : 'Cadastrar Transação' }}</h2>
         </div>
         <button type="button" class="modal-close-btn" (click)="close()" title="Fechar formulário">✕</button>
       </div>
 
       <div class="modal-body">
-        <app-transaction-form (transactionAdded)="close()" />
+        <app-transaction-form [transaction]="editing()" (saved)="close()" />
       </div>
     </div>
   </div>

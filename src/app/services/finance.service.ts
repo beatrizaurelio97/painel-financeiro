@@ -177,6 +177,27 @@ export class FinanceService {
     });
   }
 
+  updateTransaction(id: string, item: Omit<Transaction, 'id' | 'createdAt'>): Promise<Transaction> {
+    this.isSubmitting.set(true);
+    this.errorMessage.set(null);
+
+    return new Promise((resolve, reject) => {
+      this.api.updateTransaction(id, item).subscribe({
+        next: updated => {
+          this.transactions.update(prev => prev.map(t => (t.id === id ? updated : t)));
+          this.isSubmitting.set(false);
+          resolve(updated);
+        },
+        error: err => {
+          console.error('Erro ao atualizar transação via API mock', err);
+          this.errorMessage.set('Erro ao atualizar transação.');
+          this.isSubmitting.set(false);
+          reject(err);
+        }
+      });
+    });
+  }
+
   deleteTransaction(id: string): void {
     this.api.deleteTransaction(id).subscribe({
       next: () => {

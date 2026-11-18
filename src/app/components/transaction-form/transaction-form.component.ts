@@ -1,6 +1,7 @@
-import { Component, computed, inject, output, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, input, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Category, CategoryId, TransactionType } from '../../models/category.model';
+import { Transaction } from '../../models/transaction.model';
 import { FinanceService } from '../../services/finance.service';
 
 @Component({
@@ -11,10 +12,15 @@ import { FinanceService } from '../../services/finance.service';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './transaction-form.component.scss'
 })
-export class TransactionFormComponent {
+export class TransactionFormComponent implements OnInit {
   readonly financeService = inject(FinanceService);
 
-  readonly transactionAdded = output<void>();
+  // Quando informado, o formulário edita essa transação em vez de criar uma nova
+  readonly transaction = input<Transaction | null>(null);
+  readonly isEditing = computed(() => this.transaction() !== null);
+
+  // Emitido após criar ou editar com sucesso
+  readonly saved = output<void>();
 
   readonly currentType = signal<TransactionType>('expense');
 
@@ -58,6 +64,21 @@ export class TransactionFormComponent {
     })
   });
 
+  ngOnInit(): void {
+    const tx = this.transaction();
+    if (!tx) return;
+
+    this.currentType.set(tx.type);
+    this.transactionForm.setValue({
+      description: tx.description,
+      amount: tx.amount,
+      type: tx.type,
+      categoryId: tx.categoryId,
+      date: tx.date,
+      notes: tx.notes ?? ''
+    });
+  }
+
   setType(type: TransactionType): void {
     this.currentType.set(type);
     this.transactionForm.patchValue({ type });
@@ -81,15 +102,24 @@ export class TransactionFormComponent {
     }
 
     const val = this.transactionForm.getRawValue();
+    const payload = {
+      description: val.description,
+      amount: Number(val.amount),
+      type: val.type,
+      categoryId: val.categoryId,
+      date: val.date,
+      notes: val.notes || undefined
+    };
+
     try {
-      await this.financeService.addTransaction({
-        description: val.description,
-        amount: Number(val.amount),
-        type: val.type,
-        categoryId: val.categoryId,
-        date: val.date,
-        notes: val.notes || undefined
-      });
+      const editing = this.transaction();
+      if (editing) {
+        await this.financeService.updateTransaction(editing.id, payload);
+        this.saved.emit();
+        return;
+      }
+
+      await this.financeService.addTransaction(payload);
 
       this.transactionForm.reset({
         type: val.type,
@@ -100,7 +130,7 @@ export class TransactionFormComponent {
         notes: ''
       });
 
-      this.transactionAdded.emit();
+      this.saved.emit();
     } catch {
       // Erro tratado pelo serviço
     }

@@ -113,4 +113,54 @@ describe('FinanceApiStubService & Mock Control', () => {
       });
     });
   });
+
+  it('deve atualizar uma transação via PUT preservando id e createdAt', (done) => {
+    const original: Transaction = {
+      id: 'stub-1',
+      description: 'Internet',
+      amount: 100,
+      type: 'expense',
+      categoryId: 'fixed-servicos-internet',
+      date: '2026-11-01',
+      createdAt: '2026-11-01T10:00:00.000Z'
+    };
+    stub.setTransactions([original]);
+
+    httpClient
+      .put<Transaction>('/api/transactions/stub-1', {
+        description: 'Internet fibra',
+        amount: 120,
+        type: 'expense',
+        categoryId: 'fixed-servicos-internet',
+        date: '2026-11-05'
+      })
+      .subscribe({
+        next: (res) => {
+          expect(res.id).toBe('stub-1');
+          expect(res.createdAt).toBe(original.createdAt);
+          expect(res.amount).toBe(120);
+          expect(stub.transactions()[0].description).toBe('Internet fibra');
+          done();
+        },
+        error: done.fail
+      });
+  });
+
+  it('deve responder 404 ao atualizar uma transação inexistente', (done) => {
+    httpClient
+      .put('/api/transactions/nao-existe', {
+        description: 'x',
+        amount: 1,
+        type: 'expense',
+        categoryId: 'a',
+        date: '2026-01-01'
+      })
+      .subscribe({
+        next: () => done.fail('deveria falhar com 404'),
+        error: (error) => {
+          expect(error.status).toBe(404);
+          done();
+        }
+      });
+  });
 });

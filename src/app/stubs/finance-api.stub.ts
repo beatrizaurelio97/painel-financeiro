@@ -136,6 +136,21 @@ export class FinanceApiStubService {
     return created;
   }
 
+  handleUpdateTransaction(id: string, payload: Omit<Transaction, 'id' | 'createdAt'>): Transaction | null {
+    const current = this.transactions().find(t => t.id === id);
+    if (!current) return null;
+
+    const updated: Transaction = { ...current, ...payload, id: current.id, createdAt: current.createdAt };
+
+    this.transactions.update(prev => {
+      const next = prev.map(t => (t.id === id ? updated : t));
+      this.persist(next);
+      return next;
+    });
+
+    return updated;
+  }
+
   handleDeleteTransaction(id: string): { success: boolean; id: string } {
     this.transactions.update(prev => {
       const next = prev.filter(t => t.id !== id);

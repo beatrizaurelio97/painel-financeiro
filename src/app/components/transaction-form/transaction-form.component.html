@@ -1,7 +1,9 @@
 <div class="form-container">
   <div class="form-header">
-    <h3 class="form-title">Nova Transação</h3>
-    <p class="form-subtitle">Cadastre uma nova receita ou despesa</p>
+    <h3 class="form-title">{{ isEditing() ? 'Editar Transação' : 'Nova Transação' }}</h3>
+    <p class="form-subtitle">
+      {{ isEditing() ? 'Altere os dados do lançamento' : 'Cadastre uma nova receita ou despesa' }}
+    </p>
   </div>
 
   <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
@@ -124,7 +126,13 @@
       @if (financeService.isSubmitting()) {
         <span>⏳ Salvando na API...</span>
       } @else {
-        <span>Adicionar {{ transactionForm.controls.type.value === 'income' ? 'Receita' : 'Despesa' }}</span>
+        <span>
+          {{
+            isEditing()
+              ? 'Salvar alterações'
+              : 'Adicionar ' + (transactionForm.controls.type.value === 'income' ? 'Receita' : 'Despesa')
+          }}
+        </span>
       }
     </button>
   </form>

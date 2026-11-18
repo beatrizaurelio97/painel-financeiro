@@ -23,6 +23,10 @@ export class FinanceApiService {
     return this.http.post<Transaction>(`${this.baseUrl}/transactions`, payload);
   }
 
+  updateTransaction(id: string, payload: Omit<Transaction, 'id' | 'createdAt'>): Observable<Transaction> {
+    return this.http.put<Transaction>(`${this.baseUrl}/transactions/${id}`, payload);
+  }
+
   deleteTransaction(id: string): Observable<{ success: boolean; id: string }> {
     return this.http.delete<{ success: boolean; id: string }>(`${this.baseUrl}/transactions/${id}`);
   }
