@@ -1,0 +1,56 @@
+<div class="chart-card">
+  <div class="chart-header">
+    <div>
+      <h3 class="chart-title">Distribuição de Despesas</h3>
+      <p class="chart-subtitle">Análise percentual por categoria de gastos</p>
+    </div>
+  </div>
+
+  <div class="chart-body">
+    @if (financeService.expensesByCategory().length === 0) {
+      <div class="no-data">
+        <span>📊</span>
+        <p>Nenhuma despesa registrada para exibir análise.</p>
+      </div>
+    } @else {
+      <div class="categories-breakdown">
+        @for (cat of financeService.expensesByCategory(); track cat.categoryId) {
+          <div class="category-row">
+            <div class="category-meta">
+              <div class="category-info">
+                <span class="cat-icon">{{ cat.categoryIcon }}</span>
+                <span class="cat-name">{{ cat.categoryName }}</span>
+              </div>
+              <div class="category-values">
+                <span class="cat-total">{{ cat.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+                <span class="cat-percent">({{ cat.percentage / 100 | percent:'1.1-1' }})</span>
+              </div>
+            </div>
+
+            <!-- Barra visual proporcional -->
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                [style.width.%]="cat.percentage"
+                [style.background-color]="cat.categoryColor"
+              ></div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Card de Economia / Meta -->
+      <div class="savings-box">
+        <div class="savings-info">
+          <span class="savings-label">Taxa de Poupança / Economia</span>
+          <span class="savings-value">
+            {{ financeService.summary().savingsRate / 100 | percent:'1.1-1' }}
+          </span>
+        </div>
+        <p class="savings-desc">
+          Você está economizando {{ financeService.summary().savingsRate | number:'1.0-0' }}% da sua renda mensal.
+        </p>
+      </div>
+    }
+  </div>
+</div>
