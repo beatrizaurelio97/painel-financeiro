@@ -1,6 +1,6 @@
 import { Component, computed, inject, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CategoryId, TransactionType } from '../../models/category.model';
+import { Category, CategoryId, TransactionType } from '../../models/category.model';
 import { FinanceService } from '../../services/finance.service';
 
 @Component({
@@ -23,6 +23,16 @@ export class TransactionFormComponent {
     return this.financeService.categories().filter(c => c.type === 'both' || c.type === type);
   });
 
+  // Agrupa as categorias como na planilha: "Fixas · Serviços" > Internet, Operadora...
+  readonly categoryGroups = computed(() => {
+    const groups = new Map<string, Category[]>();
+    for (const cat of this.availableCategories()) {
+      const label = cat.groupName && cat.subgroupName ? `${cat.groupName} · ${cat.subgroupName}` : 'Outros';
+      groups.set(label, [...(groups.get(label) ?? []), cat]);
+    }
+    return Array.from(groups.entries()).map(([label, items]) => ({ label, items }));
+  });
+
   readonly transactionForm = new FormGroup({
     description: new FormControl<string>('', {
       nonNullable: true,
@@ -35,7 +45,7 @@ export class TransactionFormComponent {
       nonNullable: true,
       validators: [Validators.required]
     }),
-    categoryId: new FormControl<CategoryId>('food', {
+    categoryId: new FormControl<CategoryId>(this.defaultCategoryId('expense'), {
       nonNullable: true,
       validators: [Validators.required]
     }),
@@ -52,8 +62,11 @@ export class TransactionFormComponent {
     this.currentType.set(type);
     this.transactionForm.patchValue({ type });
 
-    const validCategory = this.availableCategories()[0]?.id || 'other';
-    this.transactionForm.patchValue({ categoryId: validCategory });
+    this.transactionForm.patchValue({ categoryId: this.defaultCategoryId(type) });
+  }
+
+  private defaultCategoryId(type: TransactionType): CategoryId {
+    return this.financeService.categories().find(c => c.type === 'both' || c.type === type)?.id ?? '';
   }
 
   isFieldInvalid(fieldName: 'description' | 'amount' | 'type' | 'categoryId' | 'date'): boolean {

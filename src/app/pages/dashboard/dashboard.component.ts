@@ -1,9 +1,9 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FinanceService } from '../../services/finance.service';
 import { SummaryCardComponent } from '../../components/summary-card/summary-card.component';
-import { TransactionFormComponent } from '../../components/transaction-form/transaction-form.component';
+import { NewTransactionComponent } from '../../components/new-transaction/new-transaction.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,7 +14,7 @@ import { TransactionFormComponent } from '../../components/transaction-form/tran
     CurrencyPipe,
     RouterLink,
     SummaryCardComponent,
-    TransactionFormComponent
+    NewTransactionComponent
   ],
   templateUrl: './dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -22,19 +22,4 @@ import { TransactionFormComponent } from '../../components/transaction-form/tran
 })
 export class DashboardComponent {
   readonly financeService = inject(FinanceService);
-
-  // Controla a visibilidade do formulário de Nova Transação na Visão Geral
-  readonly showTransactionForm = signal<boolean>(false);
-
-  openForm(): void {
-    this.showTransactionForm.set(true);
-  }
-
-  closeForm(): void {
-    this.showTransactionForm.set(false);
-  }
-
-  onTransactionAdded(): void {
-    this.closeForm();
-  }
 }

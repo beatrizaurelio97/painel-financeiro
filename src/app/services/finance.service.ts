@@ -1,7 +1,9 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { forkJoin, of } from 'rxjs';
 import { CATEGORIES, Category, CategoryId, TransactionType } from '../models/category.model';
-import { CategorySummary, FinancialSummary, Transaction } from '../models/transaction.model';
+import { CategorySummary, FinancialSummary, Transaction, YearlyReport } from '../models/transaction.model';
 import { FinanceApiService } from './finance-api.service';
+import { buildYearlyReport } from './yearly-report';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +24,23 @@ export class FinanceService {
   readonly filterType = signal<TransactionType | 'all'>('all');
   readonly filterCategory = signal<CategoryId | 'all'>('all');
   readonly searchQuery = signal<string>('');
+
+  // Ano exibido no histórico (visão de planilha)
+  readonly selectedYear = signal<number>(new Date().getFullYear());
+
+  readonly availableYears = computed<number[]>(() => {
+    const years = new Set<number>([new Date().getFullYear(), this.selectedYear()]);
+    for (const t of this.transactions()) {
+      const year = Number(t.date.substring(0, 4));
+      if (year) years.add(year);
+    }
+    return Array.from(years).sort((a, b) => b - a);
+  });
+
+  // Computed: Planilha anual (Saída / Entrada / Totais por mês)
+  readonly yearlyReport = computed<YearlyReport>(() =>
+    buildYearlyReport(this.transactions(), this.selectedYear())
+  );
 
   // Computed: Resumo Geral
   readonly summary = computed<FinancialSummary>(() => {
@@ -167,6 +186,51 @@ export class FinanceService {
         console.error('Erro ao excluir transação via API mock', err);
         this.errorMessage.set('Erro ao excluir movimentação.');
       }
+    });
+  }
+
+  // Substitui todas as transações do ano pelas importadas da planilha
+  importYear(year: number, items: Omit<Transaction, 'id' | 'createdAt'>[]): Promise<number> {
+    this.isSubmitting.set(true);
+    this.errorMessage.set(null);
+
+    const prefix = `${year}-`;
+    const toRemove = this.transactions().filter(t => t.date.startsWith(prefix));
+
+    return new Promise((resolve, reject) => {
+      const removals = toRemove.length
+        ? forkJoin(toRemove.map(t => this.api.deleteTransaction(t.id)))
+        : of([]);
+
+      removals.subscribe({
+        next: () => {
+          const creations = items.length
+            ? forkJoin(items.map(item => this.api.createTransaction(item)))
+            : of([] as Transaction[]);
+
+          creations.subscribe({
+            next: created => {
+              const removedIds = new Set(toRemove.map(t => t.id));
+              this.transactions.update(prev => [...created, ...prev.filter(t => !removedIds.has(t.id))]);
+              this.isSubmitting.set(false);
+              resolve(created.length);
+            },
+            error: err => {
+              console.error('Erro ao importar transações via API mock', err);
+              this.errorMessage.set('Erro ao importar planilha.');
+              this.isSubmitting.set(false);
+              this.loadInitialData();
+              reject(err);
+            }
+          });
+        },
+        error: err => {
+          console.error('Erro ao limpar transações do ano via API mock', err);
+          this.errorMessage.set('Erro ao importar planilha.');
+          this.isSubmitting.set(false);
+          reject(err);
+        }
+      });
     });
   }
 

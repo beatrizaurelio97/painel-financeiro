@@ -1,0 +1,353 @@
+$navy: #0f2a6b;
+
+.sheet-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.sheet-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.sheet-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.sheet-subtitle {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin: 0.25rem 0 0;
+}
+
+.year-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569;
+
+  select {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.875rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #334155;
+  }
+}
+
+.month-picker {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569;
+
+  select {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.875rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #334155;
+  }
+}
+
+.file-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.file-btn {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    background: #e2e8f0;
+  }
+
+  &.primary {
+    background: $navy;
+    border-color: $navy;
+    color: #ffffff;
+
+    &:hover:not(:disabled) {
+      background: #16378c;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.feedback {
+  margin-bottom: 1rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  background: #e2f0d9;
+  color: #2e7d32;
+
+  &.error {
+    background: #fde2e2;
+    color: #b42318;
+  }
+}
+
+.short {
+  display: none;
+}
+
+.sheet-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 1px;
+  font-size: 0.8125rem;
+}
+
+.sheet {
+  width: 100%;
+  table-layout: fixed;
+
+  .c-group { width: 7%; }
+  .c-sub { width: 7%; }
+  .c-item { width: 9%; }
+  .c-item-wide { width: 16%; }
+}
+
+// Faixa azul contínua no topo (igual à planilha oficial)
+.head-row th {
+  background: $navy;
+  // preenche o espaço entre as células para a faixa ficar contínua
+  box-shadow: 1px 0 0 $navy, 0 1px 0 $navy;
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+
+  &.update-cell {
+    text-align: left;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+
+    .update-label {
+      font-weight: 500;
+      opacity: 0.85;
+    }
+  }
+}
+
+// Título da seção (Saída / Entrada / Total) com folga acima, como na planilha
+.section-row th {
+  background: transparent;
+  padding: 2.25rem 0.5rem 1rem;
+  text-align: left;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.group-cell {
+  color: #ffffff;
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle;
+
+  &.navy {
+    background: $navy;
+  }
+}
+
+.sub-cell {
+  background: rgba(255, 255, 255, 0.6);
+  color: #1e293b;
+  font-weight: 500;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.item-cell {
+  padding: 0.25rem 0.5rem;
+  color: #1e293b;
+  white-space: nowrap;
+
+  &.strong {
+    font-weight: 700;
+    text-align: right;
+  }
+}
+
+.value-cell {
+  padding: 0.25rem 0.5rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: #0f172a;
+
+  &.zero {
+    color: #94a3b8;
+  }
+
+  &.negative {
+    color: #dc2626;
+  }
+}
+
+// Cores por grupo (mesma paleta da planilha)
+.row-fixed { background: #dbe8f6; }
+.row-variable { background: #dcebd3; }
+.row-non-essential { background: #fbe4d5; }
+.row-income { background: #dbe2f4; }
+
+.subtotal {
+  .subtotal-label,
+  .value-cell {
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .subtotal-label {
+    text-align: center;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+.grand-total {
+  background: $navy;
+
+  .subtotal-label,
+  .value-cell {
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .subtotal-label {
+    text-align: center;
+    padding: 0.35rem 0.5rem;
+  }
+}
+
+.summary-in { background: #e2f0d9; }
+.summary-out { background: #fbe4d5; }
+
+.summary-balance {
+  background: #ffffff;
+
+  .navy-cell {
+    background: $navy;
+    color: #ffffff;
+  }
+}
+
+.annual {
+  width: 100%;
+  max-width: 360px;
+
+  .group-cell {
+    width: 90px;
+    padding: 0.5rem;
+  }
+
+  .annual-label,
+  .annual-value {
+    padding: 0.35rem 0.75rem;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .in { background: #e2f0d9; color: #2e7d32; }
+  .out { background: #f8d7da; color: #b42318; }
+  .profit { background: #22a85a; color: #ffffff; }
+
+  .annual-value.profit.negative {
+    background: #b42318;
+  }
+}
+
+// ===== Responsivo =====
+
+// Telas médias: nomes de mês abreviados e fonte menor
+@media (max-width: 1400px) {
+  table {
+    font-size: 0.75rem;
+  }
+
+  .full {
+    display: none;
+  }
+
+  .short {
+    display: inline;
+  }
+
+  .value-cell,
+  .item-cell {
+    padding: 0.25rem 0.3rem;
+  }
+}
+
+// Telas estreitas: um mês por vez, escolhido no seletor
+@media (max-width: 900px) {
+  .sheet-card {
+    padding: 1rem;
+  }
+
+  .month-picker {
+    display: flex;
+  }
+
+  .m-hidden {
+    display: none;
+  }
+
+  .full {
+    display: inline;
+  }
+
+  .short {
+    display: none;
+  }
+
+  .sheet {
+    .c-group { width: 22%; }
+    .c-sub { width: 22%; }
+    .c-item { width: 28%; }
+    .c-item-wide { width: 40%; }
+  }
+
+  .value-cell,
+  .item-cell {
+    padding: 0.35rem 0.5rem;
+  }
+
+  .annual {
+    max-width: none;
+  }
+}

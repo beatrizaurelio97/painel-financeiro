@@ -1,0 +1,192 @@
+<div class="sheet-card">
+  <div class="sheet-toolbar">
+    <div>
+      <h3 class="sheet-title">Planilha Anual</h3>
+      <p class="sheet-subtitle">Todos os valores vêm das transações cadastradas em "Nova Transação"</p>
+    </div>
+    <label class="year-picker">
+      Ano
+      <select (change)="onYearChange($any($event.target).value)">
+        @for (year of financeService.availableYears(); track year) {
+          <option [value]="year" [selected]="year === financeService.selectedYear()">{{ year }}</option>
+        }
+      </select>
+    </label>
+    <label class="month-picker">
+      Mês
+      <select (change)="onMonthChange($any($event.target).value)">
+        @for (m of monthLabels; track m) {
+          <option [value]="$index" [selected]="$index === selectedMonth()">{{ m }}</option>
+        }
+      </select>
+    </label>
+    <div class="file-actions">
+      <button type="button" class="file-btn" [disabled]="isBusy()" (click)="fileInput.click()">⬆️ Importar .xlsx</button>
+      <button type="button" class="file-btn primary" [disabled]="isBusy()" (click)="onExport()">⬇️ Exportar .xlsx</button>
+      <input #fileInput type="file" hidden accept=".xlsx" (change)="onImport($event)" />
+    </div>
+  </div>
+
+  @if (feedback(); as fb) {
+    <div class="feedback" [class.error]="fb.kind === 'error'">{{ fb.text }}</div>
+  }
+
+  @let report = financeService.yearlyReport();
+
+  <div class="sheet-scroll">
+    <!-- ============ SAÍDA ============ -->
+    <table class="sheet">
+      <colgroup><col class="c-group" /><col class="c-sub" /><col class="c-item" />@for (m of monthLabels; track m) {<col [class.m-hidden]="$index !== selectedMonth()" />}</colgroup>
+      <thead>
+        <tr class="head-row">
+          <th colspan="3" class="update-cell"><span class="update-label">atualização:</span> <strong>{{ lastUpdate() | date: 'd MMM y' }}</strong></th>
+          @for (m of monthLabels; track m) {
+            <th class="month-col" [class.m-hidden]="$index !== selectedMonth()"><span class="full">{{ m }}</span><span class="short">{{ monthShort[$index] }}</span></th>
+          }
+        </tr>
+        <tr class="section-row">
+          <th colspan="3" class="section-label">Saída</th>
+          @for (m of monthLabels; track m) {
+            <th class="m-spacer" [class.m-hidden]="$index !== selectedMonth()"></th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (group of report.expenseGroups; track group.id) {
+          @for (sub of group.subgroups; track sub.name; let subIndex = $index) {
+            @for (row of sub.rows; track row.category.id; let rowIndex = $index) {
+              <tr [class]="'row-' + group.id">
+                @if (subIndex === 0 && rowIndex === 0) {
+                  <th class="group-cell" [attr.rowspan]="group.rowCount + 1" [style.background]="group.color">
+                    {{ group.name }}
+                  </th>
+                }
+                @if (rowIndex === 0) {
+                  <th class="sub-cell" [attr.rowspan]="sub.rows.length">{{ sub.name }}</th>
+                }
+                <td class="item-cell">{{ row.category.name }}</td>
+                @for (value of row.months; track $index) {
+                  <td class="value-cell" [class.m-hidden]="$index !== selectedMonth()" [class.zero]="value === 0">
+                    {{ value | currency: 'BRL' : '' : '1.2-2' : 'pt-BR' }}
+                  </td>
+                }
+              </tr>
+            }
+          }
+          <tr class="subtotal" [style.background]="group.color">
+            <td colspan="2" class="subtotal-label">Total</td>
+            @for (value of group.months; track $index) {
+              <td class="value-cell" [class.m-hidden]="$index !== selectedMonth()">{{ value | currency: 'BRL' : '' : '1.2-2' : 'pt-BR' }}</td>
+            }
+          </tr>
+        }
+        <tr class="grand-total">
+          <td colspan="3" class="subtotal-label">Total</td>
+          @for (value of report.expenseMonths; track $index) {
+            <td class="value-cell" [class.m-hidden]="$index !== selectedMonth()">{{ value | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</td>
+          }
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ============ ENTRADA ============ -->
+    <table class="sheet">
+      <colgroup><col class="c-group" /><col class="c-sub" /><col class="c-item" />@for (m of monthLabels; track m) {<col [class.m-hidden]="$index !== selectedMonth()" />}</colgroup>
+      <thead>
+        <tr class="section-row">
+          <th colspan="3" class="section-label">Entrada</th>
+          @for (m of monthLabels; track m) {
+            <th class="m-spacer" [class.m-hidden]="$index !== selectedMonth()"></th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (group of report.incomeGroups; track group.id) {
+          @for (sub of group.subgroups; track sub.name; let subIndex = $index) {
+            @for (row of sub.rows; track row.category.id; let rowIndex = $index) {
+              <tr [class]="'row-' + group.id">
+                @if (subIndex === 0 && rowIndex === 0) {
+                  <th class="group-cell" [attr.rowspan]="group.rowCount + 1" [style.background]="group.color">
+                    {{ group.name }}
+                  </th>
+                }
+                @if (rowIndex === 0) {
+                  <th class="sub-cell" [attr.rowspan]="sub.rows.length">{{ sub.name }}</th>
+                }
+                <td class="item-cell">{{ row.category.name }}</td>
+                @for (value of row.months; track $index) {
+                  <td class="value-cell" [class.m-hidden]="$index !== selectedMonth()" [class.zero]="value === 0">
+                    {{ value | currency: 'BRL' : '' : '1.2-2' : 'pt-BR' }}
+                  </td>
+                }
+              </tr>
+            }
+          }
+          <tr class="subtotal" [style.background]="group.color">
+            <td colspan="2" class="subtotal-label">Total</td>
+            @for (value of group.months; track $index) {
+              <td class="value-cell" [class.m-hidden]="$index !== selectedMonth()">{{ value | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <!-- ============ TOTAL MENSAL ============ -->
+    <table class="sheet">
+      <colgroup><col class="c-group" /><col class="c-item-wide" />@for (m of monthLabels; track m) {<col [class.m-hidden]="$index !== selectedMonth()" />}</colgroup>
+      <thead>
+        <tr class="section-row">
+          <th colspan="2" class="section-label">Total</th>
+          @for (m of monthLabels; track m) {
+            <th class="m-spacer" [class.m-hidden]="$index !== selectedMonth()"></th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="summary-in">
+          <th rowspan="3" class="group-cell navy">Mensal</th>
+          <td class="item-cell strong">Total de entrada</td>
+          @for (value of report.incomeMonths; track $index) {
+            <td class="value-cell" [class.m-hidden]="$index !== selectedMonth()">{{ value | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</td>
+          }
+        </tr>
+        <tr class="summary-out">
+          <td class="item-cell strong">Total de saída</td>
+          @for (value of report.expenseMonths; track $index) {
+            <td class="value-cell" [class.m-hidden]="$index !== selectedMonth()">{{ value | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</td>
+          }
+        </tr>
+        <tr class="summary-balance">
+          <td class="item-cell strong navy-cell">Total</td>
+          @for (value of report.balanceMonths; track $index) {
+            <td class="value-cell" [class.m-hidden]="$index !== selectedMonth()" [class.negative]="value < 0">
+              {{ value | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+            </td>
+          }
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ============ ANUAL ============ -->
+    <table class="annual">
+      <tbody>
+        <tr>
+          <th rowspan="3" class="group-cell navy">Anual</th>
+          <td class="annual-label in">Entrada</td>
+          <td class="annual-value in">{{ report.incomeTotal | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</td>
+        </tr>
+        <tr>
+          <td class="annual-label out">Saída</td>
+          <td class="annual-value out">{{ report.expenseTotal | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</td>
+        </tr>
+        <tr>
+          <td class="annual-label profit">Lucro</td>
+          <td class="annual-value profit" [class.negative]="report.profit < 0">
+            {{ report.profit | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

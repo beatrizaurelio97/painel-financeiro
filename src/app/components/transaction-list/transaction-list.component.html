@@ -52,7 +52,7 @@
       >
         <option value="all">Todas categorias</option>
         @for (cat of financeService.categories(); track cat.id) {
-          <option [value]="cat.id">{{ cat.icon }} {{ cat.name }}</option>
+          <option [value]="cat.id">{{ cat.groupName }} · {{ cat.subgroupName }} · {{ cat.name }}</option>
         }
       </select>
     </div>
@@ -90,7 +90,7 @@
               <td>
                 @let cat = financeService.getCategoryById(item.categoryId);
                 <span class="category-badge" [style.border-color]="cat?.color">
-                  {{ cat?.icon }} {{ cat?.name || item.categoryId }}
+                  {{ cat?.icon }} {{ cat?.subgroupName ? cat?.subgroupName + ' · ' : '' }}{{ cat?.name || item.categoryId }}
                 </span>
               </td>
               <td>

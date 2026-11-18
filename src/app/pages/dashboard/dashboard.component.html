@@ -6,34 +6,13 @@
       <p class="page-subtitle">Acompanhe seus indicadores financeiros e acesse rapidamente cada área do sistema.</p>
     </div>
 
-    <button class="primary-action-btn" (click)="openForm()">
-      <span>➕ Nova Transação</span>
-    </button>
+    <app-new-transaction #novaTransacao />
   </section>
 
   <!-- Mensagem de Erro (se houver) -->
   @if (financeService.errorMessage()) {
     <div class="error-banner">
       <span>⚠️ {{ financeService.errorMessage() }}</span>
-    </div>
-  }
-
-  <!-- Modal / Overlay de Nova Transação (Só exibe quando clicado) -->
-  @if (showTransactionForm()) {
-    <div class="modal-backdrop" (click)="closeForm()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <div class="modal-title-group">
-            <span class="modal-icon">➕</span>
-            <h2 class="modal-title">Cadastrar Transação</h2>
-          </div>
-          <button class="modal-close-btn" (click)="closeForm()" title="Fechar formulário">✕</button>
-        </div>
-
-        <div class="modal-body">
-          <app-transaction-form (transactionAdded)="onTransactionAdded()" />
-        </div>
-      </div>
     </div>
   }
 
@@ -78,7 +57,7 @@
     
     <div class="nav-cards-grid">
       <!-- Botão para abrir o formulário de Nova Transação -->
-      <button type="button" class="nav-card create-card" (click)="openForm()">
+      <button type="button" class="nav-card create-card" (click)="novaTransacao.open()">
         <div class="nav-card-icon">➕</div>
         <div class="nav-card-content">
           <h3 class="nav-card-title">Nova Transação</h3>

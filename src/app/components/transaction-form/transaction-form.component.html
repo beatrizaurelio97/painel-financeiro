@@ -88,8 +88,12 @@
         [class.invalid]="isFieldInvalid('categoryId')"
       >
         <option value="" disabled>Selecione uma categoria</option>
-        @for (cat of availableCategories(); track cat.id) {
-          <option [value]="cat.id">{{ cat.icon }} {{ cat.name }}</option>
+        @for (group of categoryGroups(); track group.label) {
+          <optgroup [label]="group.label">
+            @for (cat of group.items; track cat.id) {
+              <option [value]="cat.id">{{ cat.name }}</option>
+            }
+          </optgroup>
         }
       </select>
       @if (isFieldInvalid('categoryId')) {

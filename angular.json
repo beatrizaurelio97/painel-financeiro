@@ -35,6 +35,7 @@
               "src/styles.scss"
             ],
             "scripts": [],
+            "allowedCommonJsDependencies": ["exceljs"],
             "server": "src/main.server.ts",
             "outputMode": "server",
             "ssr": {
