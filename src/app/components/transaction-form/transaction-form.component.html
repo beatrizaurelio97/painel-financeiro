@@ -1,0 +1,127 @@
+<div class="form-container">
+  <div class="form-header">
+    <h3 class="form-title">Nova Transação</h3>
+    <p class="form-subtitle">Cadastre uma nova receita ou despesa</p>
+  </div>
+
+  <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()">
+    <!-- Tipo de Transação (Toggle) -->
+    <div class="form-group">
+      <label class="label">Tipo</label>
+      <div class="type-toggle">
+        <button
+          type="button"
+          class="type-btn expense"
+          [class.active]="transactionForm.controls.type.value === 'expense'"
+          (click)="setType('expense')"
+        >
+          <span>🔻 Despesa</span>
+        </button>
+        <button
+          type="button"
+          class="type-btn income"
+          [class.active]="transactionForm.controls.type.value === 'income'"
+          (click)="setType('income')"
+        >
+          <span>🔺 Receita</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Descrição -->
+    <div class="form-group">
+      <label class="label" for="description">Descrição</label>
+      <input
+        id="description"
+        type="text"
+        formControlName="description"
+        class="input-control"
+        placeholder="Ex: Supermercado, Salário, Internet"
+        [class.invalid]="isFieldInvalid('description')"
+      />
+      @if (isFieldInvalid('description')) {
+        <span class="error-msg">A descrição é obrigatória (mín. 3 caracteres).</span>
+      }
+    </div>
+
+    <!-- Valor e Data em Linha -->
+    <div class="form-row">
+      <div class="form-group">
+        <label class="label" for="amount">Valor (R$)</label>
+        <input
+          id="amount"
+          type="number"
+          step="0.01"
+          min="0.01"
+          formControlName="amount"
+          class="input-control"
+          placeholder="0,00"
+          [class.invalid]="isFieldInvalid('amount')"
+        />
+        @if (isFieldInvalid('amount')) {
+          <span class="error-msg">Informe um valor válido maior que zero.</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="label" for="date">Data</label>
+        <input
+          id="date"
+          type="date"
+          formControlName="date"
+          class="input-control"
+          [class.invalid]="isFieldInvalid('date')"
+        />
+        @if (isFieldInvalid('date')) {
+          <span class="error-msg">Data é obrigatória.</span>
+        }
+      </div>
+    </div>
+
+    <!-- Categoria -->
+    <div class="form-group">
+      <label class="label" for="categoryId">Categoria</label>
+      <select
+        id="categoryId"
+        formControlName="categoryId"
+        class="input-control"
+        [class.invalid]="isFieldInvalid('categoryId')"
+      >
+        <option value="" disabled>Selecione uma categoria</option>
+        @for (cat of availableCategories(); track cat.id) {
+          <option [value]="cat.id">{{ cat.icon }} {{ cat.name }}</option>
+        }
+      </select>
+      @if (isFieldInvalid('categoryId')) {
+        <span class="error-msg">Selecione uma categoria.</span>
+      }
+    </div>
+
+    <!-- Observações / Notas -->
+    <div class="form-group">
+      <label class="label" for="notes">Observações (opcional)</label>
+      <textarea
+        id="notes"
+        rows="2"
+        formControlName="notes"
+        class="input-control"
+        placeholder="Detalhes adicionais ou forma de pagamento..."
+      ></textarea>
+    </div>
+
+    <!-- Botão Salvar com Estado Assíncrono -->
+    <button
+      type="submit"
+      class="submit-btn"
+      [class.expense-btn]="transactionForm.controls.type.value === 'expense'"
+      [class.income-btn]="transactionForm.controls.type.value === 'income'"
+      [disabled]="transactionForm.invalid || financeService.isSubmitting()"
+    >
+      @if (financeService.isSubmitting()) {
+        <span>⏳ Salvando na API...</span>
+      } @else {
+        <span>Adicionar {{ transactionForm.controls.type.value === 'income' ? 'Receita' : 'Despesa' }}</span>
+      }
+    </button>
+  </form>
+</div>
