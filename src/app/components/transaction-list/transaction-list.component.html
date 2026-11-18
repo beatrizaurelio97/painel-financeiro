@@ -1,0 +1,136 @@
+<div class="list-card">
+  <div class="list-header">
+    <div>
+      <h3 class="list-title">Histórico de Transações</h3>
+      <p class="list-subtitle">Gerencie e filtre todas as suas movimentações</p>
+    </div>
+
+    <div class="header-actions">
+      @if (financeService.transactions().length > 0) {
+        <button
+          class="reset-btn"
+          [disabled]="financeService.isLoading()"
+          (click)="onClearAll()"
+          title="Limpar todas as transações"
+        >
+          🗑️ Limpar Tudo
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Barra de Filtros e Busca -->
+  <div class="filter-bar">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        placeholder="Buscar por descrição ou nota..."
+        [ngModel]="financeService.searchQuery()"
+        (ngModelChange)="financeService.searchQuery.set($event)"
+        class="search-input"
+      />
+    </div>
+
+    <div class="filters-group">
+      <!-- Filtro por Tipo -->
+      <select
+        [ngModel]="financeService.filterType()"
+        (ngModelChange)="onTypeFilterChange($event)"
+        class="filter-select"
+      >
+        <option value="all">Todos os tipos</option>
+        <option value="income">Apenas Receitas</option>
+        <option value="expense">Apenas Despesas</option>
+      </select>
+
+      <!-- Filtro por Categoria -->
+      <select
+        [ngModel]="financeService.filterCategory()"
+        (ngModelChange)="onCategoryFilterChange($event)"
+        class="filter-select"
+      >
+        <option value="all">Todas categorias</option>
+        @for (cat of financeService.categories(); track cat.id) {
+          <option [value]="cat.id">{{ cat.icon }} {{ cat.name }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Tabela / Lista de Transações com Estado de Loading -->
+  <div class="table-container">
+    @if (financeService.isLoading()) {
+      <div class="loading-state">
+        <span class="loading-spinner">⌛</span>
+        <p>Carregando dados da API Stub...</p>
+      </div>
+    } @else {
+      <table class="transaction-table">
+        <thead>
+          <tr>
+            <th>Transação</th>
+            <th>Categoria</th>
+            <th>Data</th>
+            <th class="text-right">Valor</th>
+            <th class="text-center">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of financeService.filteredTransactions(); track item.id) {
+            <tr class="table-row">
+              <td>
+                <div class="desc-cell">
+                  <span class="desc-text">{{ item.description }}</span>
+                  @if (item.notes) {
+                    <span class="notes-text">{{ item.notes }}</span>
+                  }
+                </div>
+              </td>
+              <td>
+                @let cat = financeService.getCategoryById(item.categoryId);
+                <span class="category-badge" [style.border-color]="cat?.color">
+                  {{ cat?.icon }} {{ cat?.name || item.categoryId }}
+                </span>
+              </td>
+              <td>
+                <span class="date-text">{{ item.date | date:'dd/MM/yyyy' }}</span>
+              </td>
+              <td class="text-right">
+                <span
+                  class="amount-tag"
+                  [class.income-val]="item.type === 'income'"
+                  [class.expense-val]="item.type === 'expense'"
+                >
+                  {{ item.type === 'income' ? '+' : '-' }}
+                  {{ item.amount | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+                </span>
+              </td>
+              <td class="text-center">
+                <button
+                  class="delete-btn"
+                  (click)="onDelete(item.id, item.description)"
+                  title="Excluir movimentação"
+                >
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="empty-state">
+                <div class="empty-content">
+                  <span class="empty-icon">📂</span>
+                  <p class="empty-title">Nenhuma transação cadastrada</p>
+                  <p class="empty-subtitle">
+                    Cadastre suas receitas e despesas pela Visão Geral para acompanhar seu saldo.
+                  </p>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>
