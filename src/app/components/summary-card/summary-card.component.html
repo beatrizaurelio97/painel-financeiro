@@ -1,0 +1,15 @@
+<div class="summary-card" [class]="variant()">
+  <div class="card-header">
+    <span class="card-title">{{ title() }}</span>
+    <div class="icon-wrapper">
+      <span>{{ icon() }}</span>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="amount">{{ amount() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</div>
+    @if (subtitle()) {
+      <p class="subtitle">{{ subtitle() }}</p>
+    }
+  </div>
+</div>
