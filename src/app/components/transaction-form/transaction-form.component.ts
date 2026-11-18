@@ -1,4 +1,4 @@
-import { Component, computed, inject, output, signal } from '@angular/core';
+import { Component, computed, inject, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CategoryId, TransactionType } from '../../models/category.model';
 import { FinanceService } from '../../services/finance.service';
@@ -8,6 +8,7 @@ import { FinanceService } from '../../services/finance.service';
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './transaction-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './transaction-form.component.scss'
 })
 export class TransactionFormComponent {

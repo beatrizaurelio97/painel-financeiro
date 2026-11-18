@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FinanceService } from '../../services/finance.service';
@@ -9,6 +9,7 @@ import { CategoryId, TransactionType } from '../../models/category.model';
   standalone: true,
   imports: [CurrencyPipe, DatePipe, FormsModule],
   templateUrl: './transaction-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './transaction-list.component.scss'
 })
 export class TransactionListComponent {

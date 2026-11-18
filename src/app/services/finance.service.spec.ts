@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { FinanceService } from './finance.service';
 import { FinanceApiService } from './finance-api.service';
@@ -14,7 +14,7 @@ describe('FinanceService (Signals & Computed)', () => {
       providers: [
         FinanceService,
         FinanceApiService,
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting()
       ]
     });

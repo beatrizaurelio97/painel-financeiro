@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TransactionListComponent } from '../../components/transaction-list/transaction-list.component';
 
 @Component({
@@ -6,6 +6,7 @@ import { TransactionListComponent } from '../../components/transaction-list/tran
   standalone: true,
   imports: [TransactionListComponent],
   templateUrl: './transactions.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './transactions.component.scss'
 })
 export class TransactionsComponent {}

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CurrencyPipe, DecimalPipe, PercentPipe } from '@angular/common';
 import { FinanceService } from '../../services/finance.service';
 
@@ -7,6 +7,7 @@ import { FinanceService } from '../../services/finance.service';
   standalone: true,
   imports: [CurrencyPipe, DecimalPipe, PercentPipe],
   templateUrl: './financial-chart.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './financial-chart.component.scss'
 })
 export class FinancialChartComponent {

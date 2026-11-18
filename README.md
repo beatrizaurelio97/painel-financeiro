@@ -1,6 +1,6 @@
-# MeuProjeto
+# Painel Financeiro
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.7.
+This project uses [Angular](https://angular.dev/) 22.2.6 and [Angular CLI](https://github.com/angular/angular-cli) 22.2.7.
 
 ## Development server
 
@@ -38,10 +38,10 @@ This will compile your project and store the build artifacts in the `dist/` dire
 
 ## Running unit tests
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+To execute the Jest unit tests, use the following command:
 
 ```bash
-ng test
+npm test
 ```
 
 ## Running end-to-end tests

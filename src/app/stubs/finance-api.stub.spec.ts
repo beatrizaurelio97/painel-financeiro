@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { FinanceApiStubService } from './finance-api.stub';
 import { mockApiInterceptor } from '../interceptors/mock-api.interceptor';
 import { Transaction } from '../models/transaction.model';
@@ -12,7 +12,7 @@ describe('FinanceApiStubService & Mock Control', () => {
     TestBed.configureTestingModule({
       providers: [
         FinanceApiStubService,
-        provideHttpClient(withInterceptors([mockApiInterceptor]))
+        provideHttpClient(withXhr(), withInterceptors([mockApiInterceptor]))
       ]
     });
 

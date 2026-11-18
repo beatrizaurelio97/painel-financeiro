@@ -14,5 +14,13 @@
     "src/**/*.spec.ts",
     "src/**/*.d.ts",
     "setup-jest.ts"
-  ]
+  ],
+  "angularCompilerOptions": {
+    "extendedDiagnostics": {
+      "checks": {
+        "nullishCoalescingNotNullable": "suppress",
+        "optionalChainNotNullable": "suppress"
+      }
+    }
+  }
 }
