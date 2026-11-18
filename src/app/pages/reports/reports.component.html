@@ -1,0 +1,22 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Distribuição de Despesas</h1>
+      <p class="page-subtitle">Acompanhe a divisão percentual e insights dos seus gastos por categoria</p>
+    </div>
+  </div>
+
+  <div class="chart-wrapper">
+    @defer (on idle) {
+      <app-financial-chart />
+    } @loading (minimum 300ms) {
+      <div class="defer-fallback loading">
+        <span>⏳ Carregando relatório de gastos...</span>
+      </div>
+    } @placeholder {
+      <div class="defer-fallback placeholder">
+        <span>📊 Carregando gráficos...</span>
+      </div>
+    }
+  </div>
+</div>

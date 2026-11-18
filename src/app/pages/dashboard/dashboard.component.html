@@ -1,0 +1,148 @@
+<div class="dashboard-container">
+  <!-- Boas-vindas & Botão de Ação -->
+  <section class="dashboard-header">
+    <div>
+      <h1 class="page-title">Visão Geral</h1>
+      <p class="page-subtitle">Acompanhe seus indicadores financeiros e acesse rapidamente cada área do sistema.</p>
+    </div>
+
+    <button class="primary-action-btn" (click)="openForm()">
+      <span>➕ Nova Transação</span>
+    </button>
+  </section>
+
+  <!-- Mensagem de Erro (se houver) -->
+  @if (financeService.errorMessage()) {
+    <div class="error-banner">
+      <span>⚠️ {{ financeService.errorMessage() }}</span>
+    </div>
+  }
+
+  <!-- Modal / Overlay de Nova Transação (Só exibe quando clicado) -->
+  @if (showTransactionForm()) {
+    <div class="modal-backdrop" (click)="closeForm()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-icon">➕</span>
+            <h2 class="modal-title">Cadastrar Transação</h2>
+          </div>
+          <button class="modal-close-btn" (click)="closeForm()" title="Fechar formulário">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <app-transaction-form (transactionAdded)="onTransactionAdded()" />
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Cards de Resumo Financeiro (Signals) -->
+  <section class="summary-grid">
+    <app-summary-card
+      title="Saldo Atual"
+      [amount]="financeService.summary().totalBalance"
+      icon="💳"
+      variant="balance"
+      subtitle="Saldo consolidado em conta"
+    />
+
+    <app-summary-card
+      title="Receitas"
+      [amount]="financeService.summary().totalIncome"
+      icon="📈"
+      variant="income"
+      subtitle="Entradas acumuladas"
+    />
+
+    <app-summary-card
+      title="Despesas"
+      [amount]="financeService.summary().totalExpenses"
+      icon="📉"
+      variant="expense"
+      subtitle="Saídas acumuladas"
+    />
+
+    <app-summary-card
+      title="Economias"
+      [amount]="financeService.summary().totalBalance"
+      icon="🎯"
+      variant="savings"
+      [subtitle]="financeService.summary().savingsRate > 0 ? (financeService.summary().savingsRate | number:'1.0-0') + '% da renda economizada' : 'Sem saldo positivo'"
+    />
+  </section>
+
+  <!-- Menu de Acesso Rápido para as Seções -->
+  <section class="quick-nav-section">
+    <h2 class="section-title">O que você deseja fazer?</h2>
+    
+    <div class="nav-cards-grid">
+      <!-- Botão para abrir o formulário de Nova Transação -->
+      <button type="button" class="nav-card create-card" (click)="openForm()">
+        <div class="nav-card-icon">➕</div>
+        <div class="nav-card-content">
+          <h3 class="nav-card-title">Nova Transação</h3>
+          <p class="nav-card-desc">Cadastre um novo lançamento de receita ou despesa com categorias e notas.</p>
+        </div>
+        <span class="nav-card-arrow">+</span>
+      </button>
+
+      <a routerLink="/transacoes" class="nav-card list-card">
+        <div class="nav-card-icon">📋</div>
+        <div class="nav-card-content">
+          <h3 class="nav-card-title">Histórico de Transações</h3>
+          <p class="nav-card-desc">Filtre por tipo, categoria, pesquise lançamentos e gerencie seu extrato.</p>
+        </div>
+        <span class="nav-card-arrow">→</span>
+      </a>
+
+      <a routerLink="/relatorios" class="nav-card report-card">
+        <div class="nav-card-icon">📊</div>
+        <div class="nav-card-content">
+          <h3 class="nav-card-title">Distribuição de Despesas</h3>
+          <p class="nav-card-desc">Analise gráficos percentuais dos seus gastos por categoria e taxa de poupança.</p>
+        </div>
+        <span class="nav-card-arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Últimas Transações Recentes -->
+  <section class="recent-section">
+    <div class="recent-header">
+      <h2 class="section-title">Últimas Movimentações</h2>
+      <a routerLink="/transacoes" class="view-all-link">Ver todas as transações →</a>
+    </div>
+
+    <div class="recent-card">
+      @if (financeService.isLoading()) {
+        <div class="recent-loading">⏳ Carregando movimentações...</div>
+      } @else if (financeService.recentTransactions().length === 0) {
+        <div class="recent-empty">Nenhuma transação registrada ainda.</div>
+      } @else {
+        <div class="recent-list">
+          @for (item of financeService.recentTransactions(); track item.id) {
+            <div class="recent-item">
+              <div class="item-info">
+                @let cat = financeService.getCategoryById(item.categoryId);
+                <span class="item-icon">{{ cat?.icon || '📦' }}</span>
+                <div>
+                  <span class="item-desc">{{ item.description }}</span>
+                  <span class="item-date">{{ item.date | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+              <span
+                class="item-amount"
+                [class.income]="item.type === 'income'"
+                [class.expense]="item.type === 'expense'"
+              >
+                {{ item.type === 'income' ? '+' : '-' }}
+                {{ item.amount | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+              </span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+</div>
